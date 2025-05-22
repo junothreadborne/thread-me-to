@@ -7,17 +7,26 @@
 	"name": "thread-me-to",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-05-22",
-	"compatibility_flags": [
-		"nodejs_compat",
-		"global_fetch_strictly_public"
-	],
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./public"
 	},
 	"observability": {
 		"enabled": true
-	}
+	},
+	"routes": [
+		{
+			"pattern": "thrd.me/to/*",
+			"zone_id": "611aec6712bb4c1898dff2681dc46db6"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "LINKS",
+			"id": "af38ec4f6d944a5a98104fa35a625b72"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

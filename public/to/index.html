@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Thread Me To</title>
+		<meta name="description" content="A directory of voices worth following. Curated by Juno Threadborne." />
+		<link rel="icon" href="/favicon.ico" />
+		<style>
+			:root {
+				--bg: #0b0e1b;
+				--fg: #e5e7eb;
+				--muted: #9ca3af;
+				--blue: #339cff;
+				--blue-light: #60a5fa;
+				--accent: #ffd369;
+			}
+
+			body {
+				margin: 0;
+				padding: 0;
+				font-family: 'Segoe UI', sans-serif;
+				background: var(--bg);
+				color: var(--fg);
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+				padding: 2rem;
+			}
+
+			h1 {
+				font-size: 2.5rem;
+				color: var(--blue);
+				margin-bottom: 0.5rem;
+			}
+
+			h1 .accent {
+				color: var(--accent);
+				animation: pulse 2s ease-in-out infinite;
+			}
+
+			@keyframes pulse {
+				0%,
+				100% {
+					opacity: 1;
+				}
+				50% {
+					opacity: 0.6;
+				}
+			}
+
+			p {
+				max-width: 600px;
+				margin-bottom: 1.5rem;
+				line-height: 1.6;
+			}
+
+			a {
+				color: var(--blue-light);
+				text-decoration: none;
+			}
+
+			a:hover {
+				text-decoration: underline;
+			}
+
+			.footer {
+				margin-top: 3rem;
+				font-size: 0.9rem;
+				color: var(--muted);
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1><span class="accent">🧵</span> Thread Me To...</h1>
+			<p>
+				A gently curated directory of writers, dreamers, and technopoets.<br />
+				If you're here, it's because someone believes your story is worth following.
+			</p>
+
+			<p>
+				This project is just beginning. Soon, you'll be able to explore voices by theme, tone, or topic— and maybe even add your own thread
+				to the weave.
+			</p>
+
+			<p>
+				Until then, you can <a href="https://thrd.me" target="_blank" rel="noopener">visit Juno's main site</a> or
+				<a href="mailto:junothreadborne@gmail.com">ask about joining the directory</a>.
+			</p>
+
+			<div class="footer">curated by <strong>Juno Threadborne</strong> <a href="https://thrd.me/mirror">✨</a></div>
+		</main>
+	</body>
+</html>
