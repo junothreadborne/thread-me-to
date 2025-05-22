@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /to$
+Allow: /to/index.html
+Disallow: /to/
