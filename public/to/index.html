@@ -6,23 +6,19 @@
 		<title>Thread Me To...</title>
 		<meta name="description" content="A directory of voices worth following. Curated by Juno Threadborne." />
 		<link rel="icon" href="/favicon.ico" />
-    <!-- SEO -->
-    <meta name="robots" content="index,follow" />
-    <meta name="description" content="A gently curated directory of writers, dreamers, and technopoets—curated by Juno Threadborne." />
 
-    <!-- OpenGraph (for link previews) -->
-    <meta property="og:title" content="Thread Me To" />
-    <meta property="og:description" content="A gently curated directory of writers, dreamers, and technopoets—curated by Juno Threadborne." />
-    <meta property="og:url" content="https://thrd.me/to/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://thrd.me/og-threadmeto.webp" />
+		<!-- SEO + Social -->
+		<meta name="robots" content="index,follow" />
+		<meta property="og:title" content="Thread Me To" />
+		<meta property="og:description" content="A gently curated directory of writers, dreamers, and technopoets." />
+		<meta property="og:url" content="https://thrd.me/to/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:image" content="https://thrd.me/og-threadmeto.webp" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Thread Me To" />
+		<meta name="twitter:description" content="A directory of voices worth following." />
+		<meta name="twitter:image" content="https://thrd.me/og-threadmeto.webp" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Thread Me To" />
-    <meta name="twitter:description" content="A directory of voices worth following." />
-    <meta name="twitter:image" content="https://thrd.me/og-threadmeto.webp" />
-<
 		<style>
 			:root {
 				--bg: #0b0e1b;
@@ -42,10 +38,14 @@
 				display: flex;
 				flex-direction: column;
 				min-height: 100vh;
-				justify-content: center;
 				align-items: center;
-				text-align: center;
 				padding: 2rem;
+			}
+
+			main {
+				width: 100%;
+				max-width: 800px;
+				text-align: center;
 			}
 
 			h1 {
@@ -71,7 +71,7 @@
 
 			p {
 				max-width: 600px;
-				margin-bottom: 1.5rem;
+				margin: 0 auto 1rem auto;
 				line-height: 1.6;
 			}
 
@@ -89,27 +89,242 @@
 				font-size: 0.9rem;
 				color: var(--muted);
 			}
+
+			/* Search box */
+			.search-container {
+				margin: 2rem 0;
+			}
+
+			input[type='text'] {
+				width: 100%;
+				max-width: 400px;
+				padding: 0.75rem;
+				border: none;
+				border-radius: 8px;
+				font-size: 1rem;
+			}
+
+			/* Card grid */
+			.cards {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+				gap: 1.5rem;
+				width: 100%;
+				margin-top: 2rem;
+				justify-items: center;
+			}
+
+			.card {
+				background: #121826;
+				border-radius: 12px;
+				padding: 1rem;
+				text-align: left;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+				transition: transform 0.2s ease;
+			}
+
+			.card:hover {
+				transform: translateY(-5px);
+			}
+
+			.card img {
+        max-width: 100%;
+				border-radius: 8px;
+				margin-bottom: 0.75rem;
+			}
+
+			.card h3 {
+				margin: 0.5rem 0;
+				font-size: 1.25rem;
+				color: var(--blue);
+			}
+
+			.card p {
+				font-size: 0.95rem;
+				color: var(--muted);
+			}
+
+			.tags {
+				margin-top: 0.5rem;
+				font-size: 0.8rem;
+			}
+
+			.tag {
+				display: inline-block;
+				background: var(--blue-light);
+				color: var(--bg);
+				padding: 0.2rem 0.5rem;
+				margin: 0.1rem;
+				border-radius: 4px;
+			}
+			.loader {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				height: 100vh;
+				color: var(--muted);
+			}
+			.spinner {
+				border: 4px solid var(--muted);
+				border-top: 4px solid var(--blue);
+				border-radius: 50%;
+				width: 40px;
+				height: 40px;
+				animation: spin 1s linear infinite;
+			}
+			@keyframes spin {
+				from {
+					transform: rotate(0deg);
+				}
+				to {
+					transform: rotate(360deg);
+				}
+			}
+			.empty-results {
+				text-align: center;
+				color: var(--muted);
+				margin-top: 2rem;
+			}
+			.error-message {
+				text-align: center;
+				color: var(--muted);
+				margin-top: 2rem;
+			}
+			.error-message h2 {
+				color: var(--blue);
+			}
+			.add-entry {
+				/* margin: 1rem 0; */
+				font-size: 0.95rem;
+				color: var(--muted);
+			}
+			.add-entry a {
+				color: var(--blue-light);
+			}
 		</style>
+		<script id="tagTemplate" type="text/template">
+			<span class="tag">{{tag}}</span>
+		</script>
+		<script id="loaderTemplate" type="text/template">
+			<div class="loader">
+			  <div class="spinner"></div>
+			  <p>Loading...</p>
+			</div>
+		</script>
+		<script id="emptyResults" type="text/template">
+			<div class="empty-results">
+			  <p>No results found. Try a different search term.</p>
+			</div>
+		</script>
+		<script id="errorMessage" type="text/template">
+			<div class="error-message">
+			     <h2>Error</h2>
+			  <p>Couldn't load the list, sorry.</p>
+			</div>
+		</script>
+		<script id="cardTemplate" type="text/template">
+			<div class="card">
+			    <a href="{{slug}}" target="_blank"  ><img  src="{{imgSrc}}" alt="Profile image"></a>
+			    <h3><a href="{{slug}}" target="_blank"  >{{displayName}}</a></h3>
+			    <p>{{tagline}}</p>
+			    <div class="tags">
+			      {{tags}}
+			    </div>
+
+			  </div>
+		</script>
 	</head>
 	<body>
 		<main>
 			<h1><span class="accent">🧵</span> Thread Me To...</h1>
 			<p>
-				A gently curated directory of writers, dreamers, and technopoets.<br />
-				If you're here, it's because someone believes your story is worth following.
+				A gently curated directory of writers, dreamers, and technopoets. A place where like-minded creators can be discovered, connected,
+				and celebrated.
+			</p>
+			<p>Explore, search, and follow the threads that resonate with you. Each card below represents someone worth knowing.</p>
+
+			<div class="search-container">
+				<input type="text" id="searchInput" placeholder="Search creators, topics, or tags..." />
+			</div>
+
+			<p class="add-entry">
+				Want to be added? Reach out to me here:
+				<a href="https://bsky.app/profile/junothreadborne.me/post/3lprn5duh3s2c" target="_blank" rel="noopener">
+					@junothreadborne on Bluesky
+				</a></br>
+				✨ We’re always looking for more voices to weave into the tapestry.
 			</p>
 
-			<p>
-				This project is just beginning. Soon, you'll be able to explore voices by theme, tone, or topic— and maybe even add your own thread
-				to the weave.
-			</p>
-
-			<p>
-				Until then, you can <a href="https://thrd.me" target="_blank" rel="noopener">visit Juno's main site</a> or
-				<a href="mailto:junothreadborne@gmail.com">ask about joining the directory</a>.
-			</p>
+			<div class="cards" id="cardsContainer"></div>
 
 			<div class="footer">curated by <strong>Juno Threadborne</strong> <a href="https://thrd.me/mirror">✨</a></div>
 		</main>
+
+		<script>
+			(() => {
+				const resultsContainer = document.getElementById('cardsContainer');
+				const cardTemplate = document.getElementById('cardTemplate');
+				const tagTemplate = document.getElementById('tagTemplate');
+				const loaderTemplate = document.getElementById('loaderTemplate');
+				const emptyResultsTemplate = document.getElementById('emptyResults');
+				const errorMessageTemplate = document.getElementById('errorMessage');
+
+				resultsContainer.innerHTML = loaderTemplate.innerHTML; // Show loader initially
+				const searchInput = document.getElementById('searchInput');
+
+				const showEmptyResults = () => {
+					resultsContainer.innerHTML = emptyResultsTemplate.innerHTML;
+				};
+				const showErrorMessage = () => {
+					resultsContainer.innerHTML = errorMessageTemplate.innerHTML;
+				};
+
+				fetch('/to/api/all')
+					.then((response) => response.json())
+					.then((data) => {
+						const templater = (template) => (data) => {
+							return template.replace(/\{\{(\w+)\}\}/g, (match, key) => data[key] || '');
+						};
+						const tagTemplater = templater(tagTemplate.innerHTML);
+						const cardTemplater = templater(cardTemplate.innerHTML);
+						const renderTags = (tags) => {
+							return tags.map((tag) => tagTemplater({ tag })).join('');
+						};
+						const renderCard = (data) => {
+							const tagsHTML = renderTags(data.tags);
+							return cardTemplater({ ...data, tags: tagsHTML });
+						};
+						const renderCards = (data) => {
+							resultsContainer.innerHTML = data.map(renderCard).join('');
+						};
+						// Initial render
+						renderCards(data);
+						const filterCards = (query) => {
+							const lowerQuery = query.toLowerCase();
+							const filteredData = data.filter((item) => {
+								return (
+									item.displayName.toLowerCase().includes(lowerQuery) ||
+									item.tagline.toLowerCase().includes(lowerQuery) ||
+									item.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))
+								);
+							});
+							if (filteredData.length === 0) {
+								showEmptyResults();
+								return;
+							}
+							renderCards(filteredData);
+						};
+						searchInput.addEventListener('input', (event) => {
+							const query = event.target.value;
+							filterCards(query);
+						});
+					})
+					.catch((error) => {
+						console.error('Error fetching data:', error);
+						showErrorMessage();
+					});
+			})();
+		</script>
 	</body>
 </html>
