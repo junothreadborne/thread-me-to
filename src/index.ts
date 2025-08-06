@@ -209,22 +209,22 @@ const STORY_CSS = `
 
 async function handleStoryCustomization(
 	env: Env,
-	storyPath: string,
+	storyKey: string,
 	customName: string | null,
 	customPronoun: string | null
 ): Promise<Response> {
 	try {
 		// Validate story exists
-		const storyMeta = STORY_METADATA[storyPath as keyof typeof STORY_METADATA];
+		const storyMeta = STORY_METADATA[storyKey as keyof typeof STORY_METADATA];
 		if (!storyMeta) {
-			return new Response(`Story "${storyPath}" not found`, {
+			return new Response(`Story "${storyKey}" not found`, {
 				status: 404,
 				headers: { 'Content-Type': 'text/plain' },
 			});
 		}
 
 		// Validate pronoun
-		const pronounKey = (customPronoun || 'they') as PronounKey;
+		const pronounKey = (customPronoun || 'he') as PronounKey;
 		if (!PRONOUNS[pronounKey]) {
 			return new Response(`Invalid pronoun "${customPronoun}". Use: he, she, or they`, {
 				status: 400,
@@ -233,7 +233,7 @@ async function handleStoryCustomization(
 		}
 
 		// Fetch story content from static assets
-		const storyFile = await env.ASSETS.fetch(`https://placeholder.com/stories/${storyPath}.md`);
+		const storyFile = await env.ASSETS.fetch(`https://junothreadborne.me/books/${storyKey}.md`);
 		if (!storyFile.ok) {
 			return new Response('Story content not available', {
 				status: 503,
