@@ -1,6 +1,12 @@
 import { Buffer } from 'node:buffer';
 import { marked } from 'marked';
 
+marked.setOptions({
+	gfm: true,
+	breaks: true,
+	pedantic: false,
+});
+
 const encoder = new TextEncoder();
 
 function timingSafeEqual(a: string, b: string): boolean {
@@ -97,20 +103,97 @@ function rewritePronouns(text: string, originalName: string, targetName: string,
 
 // Post-process marked HTML to add our custom classes
 function addStoryClasses(html: string): string {
-  return html
-    .replace(/<h1>/g, '<h1 class="chapter-title">')
-    .replace(/<h2>/g, '<h2 class="section-title">')
-    .replace(/<h3>/g, '<h3 class="subsection-title">')
-    .replace(/<p>/g, '<p class="story-text">')
-    .replace(/<ul>/g, '<ul class="bullet-list">')
-    .replace(/<ol>/g, '<ol class="numbered-list">')
-    .replace(/<blockquote>/g, '<blockquote class="story-callout">')
-    .replace(/<img /g, '<img class="story-image" ');
+	return html
+		.replace(/<h1>/g, '<h1 class="chapter-title">')
+		.replace(/<h2>/g, '<h2 class="section-title">')
+		.replace(/<h3>/g, '<h3 class="subsection-title">')
+		.replace(/<p>/g, '<p class="story-text">')
+		.replace(/<ul>/g, '<ul class="bullet-list">')
+		.replace(/<ol>/g, '<ol class="numbered-list">')
+		.replace(/<blockquote>/g, '<blockquote class="story-callout">')
+		.replace(/<img /g, '<img class="story-image" ');
 }
 
 function markdownToHTML(markdown: string): string {
-  const rawHTML = marked.parse(markdown);
+	const manual = markdownToHTMLManual(markdown);
+	const rawHTML = marked.parse(manual);
 	return addStoryClasses(rawHTML);
+}
+// Simple markdown to HTML converter (basic implementation)
+function markdownToHTMLManual(markdown: string): string {
+	// First pass: handle block elements
+	let html = markdown
+		// Headers (must be done first)
+		.replace(/^### (.*$)/gm, '<h3 class="subsection-title">$1</h3>')
+		.replace(/^## (.*$)/gm, '<h2 class="section-title">$1</h2>')
+		.replace(/^# (.*$)/gm, '<h1 class="chapter-title">$1</h1>');
+
+	// Split into blocks (double line breaks)
+	const blocks = html.split(/\n\s*\n/);
+
+	const processedBlocks = blocks.map((block) => {
+		block = block.trim();
+		if (!block) return '';
+
+		// Skip if it's already a header
+		if (block.startsWith('<h')) {
+			return block;
+		}
+
+		// Handle blockquotes
+		if (block.startsWith('>')) {
+			const content = block.replace(/^>\s*/gm, '');
+			return `<blockquote class="story-callout">${content.replace(/\n/g, '<br>')}</blockquote>`;
+		}
+
+		// Handle blockquotes
+		if (block.startsWith('>')) {
+			const content = block.replace(/^>\s*/gm, '');
+			return `<blockquote class="story-callout">${content.replace(/\n/g, '<br>')}</blockquote>`;
+		}
+
+		// Handle unordered lists
+		if (/^[\*\-\+]\s/.test(block)) {
+			const items = block
+				.split('\n')
+				.map((line) => {
+					const match = line.match(/^[\*\-\+]\s(.+)/);
+					return match ? `<li>${match[1]}</li>` : '';
+				})
+				.filter(Boolean)
+				.join('');
+			return `<ul class="bullet-list">${items}</ul>`;
+		}
+
+		// Handle ordered lists
+		if (/^\d+\.\s/.test(block)) {
+			const items = block
+				.split('\n')
+				.map((line) => {
+					const match = line.match(/^\d+\.\s(.+)/);
+					return match ? `<li>${match[1]}</li>` : '';
+				})
+				.filter(Boolean)
+				.join('');
+			return `<ol class="numbered-list">${items}</ol>`;
+		}
+
+		// Regular paragraphs
+		return `<p class="story-text">${block.replace(/\n/g, '<br>')}</p>`;
+	});
+
+	// Join blocks and apply inline formatting
+	return (
+		processedBlocks
+			.join('\n\n')
+			// Inline formatting
+			.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+			.replace(/\*(.*?)\*/g, '<em>$1</em>')
+			.replace(/\_(.*?)\_/g, '<em>$1</em>')
+			.replace(/`(.*?)`/g, '<code>$1</code>')
+			// Fix any double spaces from processing
+			.replace(/\n\s*\n\s*\n/g, '\n\n')
+	);
 }
 
 const STORY_METADATA = {
@@ -118,7 +201,7 @@ const STORY_METADATA = {
 		title: 'The Island of Almosts',
 		originalName: 'Sam',
 		originalPronoun: 'he' as PronounKey,
-		description: 'A magical adventure about finding your way home.',
+		description: 'A magical adventure about a struggling child.',
 	},
 	// Add more stories as needed
 } as const;
@@ -230,21 +313,16 @@ async function handleStoryCustomization(
 				headers: { 'Content-Type': 'text/plain' },
 			});
 		}
-
 		const storyMarkdown = await storyFile.text();
+		const htmlBeforePronouns = markdownToHTML(storyMarkdown);
 
-		// Apply customizations
-		let customizedStory = storyMarkdown;
+		let customizedHTML = htmlBeforePronouns;
 
 		if (customName) {
-			customizedStory = rewritePronouns(customizedStory, storyMeta.originalName, customName, pronounKey);
+			customizedHTML = rewritePronouns(customizedHTML, storyMeta.originalName, customName, pronounKey);
 		} else if (pronounKey !== storyMeta.originalPronoun) {
-			// Just change pronouns, keep original name
-			customizedStory = rewritePronouns(customizedStory, storyMeta.originalName, storyMeta.originalName, pronounKey);
+			customizedHTML = rewritePronouns(customizedHTML, storyMeta.originalName, storyMeta.originalName, pronounKey);
 		}
-
-		// Convert to HTML
-		const htmlContent = markdownToHTML(customizedStory);
 
 		// Create customization banner
 		let bannerText = '';
@@ -274,7 +352,7 @@ async function handleStoryCustomization(
 <body>
     ${banner}
     <div class="story-container">
-        ${htmlContent}
+        ${customizedHTML}
     </div>
 
     <script>
