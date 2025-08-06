@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer';
+import { marked } from 'marked';
 
 const encoder = new TextEncoder();
 
@@ -94,27 +95,22 @@ function rewritePronouns(text: string, originalName: string, targetName: string,
 	return result;
 }
 
-// Simple markdown to HTML converter (basic implementation)
+// Post-process marked HTML to add our custom classes
+function addStoryClasses(html: string): string {
+  return html
+    .replace(/<h1>/g, '<h1 class="chapter-title">')
+    .replace(/<h2>/g, '<h2 class="section-title">')
+    .replace(/<h3>/g, '<h3 class="subsection-title">')
+    .replace(/<p>/g, '<p class="story-text">')
+    .replace(/<ul>/g, '<ul class="bullet-list">')
+    .replace(/<ol>/g, '<ol class="numbered-list">')
+    .replace(/<blockquote>/g, '<blockquote class="story-callout">')
+    .replace(/<img /g, '<img class="story-image" ');
+}
+
 function markdownToHTML(markdown: string): string {
-	return (
-		markdown
-			// Headers
-			.replace(/^### (.*$)/gm, '<h3 class="subsection-title">$1</h3>')
-			.replace(/^## (.*$)/gm, '<h2 class="section-title">$1</h2>')
-			.replace(/^# (.*$)/gm, '<h1 class="chapter-title">$1</h1>')
-			// Bold and italic
-			.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-			.replace(/\*(.*?)\*/g, '<em>$1</em>')
-			// Paragraphs
-			.split('\n\n')
-			.map((paragraph) => {
-				if (paragraph.includes('<h') || paragraph.trim() === '') {
-					return paragraph;
-				}
-				return `<p class="story-text">${paragraph.replace(/\n/g, '<br>')}</p>`;
-			})
-			.join('\n\n')
-	);
+  const rawHTML = marked.parse(markdown);
+	return addStoryClasses(rawHTML);
 }
 
 const STORY_METADATA = {
@@ -227,7 +223,7 @@ async function handleStoryCustomization(
 		}
 
 		// Fetch story content from static assets
-		const storyFile = await env.ASSETS.fetch(`https://junothreadborne.me/books/${storyKey}.md`);
+		const storyFile = await fetch(`https://junothreadborne.me/books/${storyKey}.md`);
 		if (!storyFile.ok) {
 			return new Response('Story content not available', {
 				status: 503,
