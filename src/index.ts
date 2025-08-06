@@ -118,17 +118,11 @@ function markdownToHTML(markdown: string): string {
 }
 
 const STORY_METADATA = {
-	'island-of-almosts': {
+	island: {
 		title: 'The Island of Almosts',
 		originalName: 'Sam',
 		originalPronoun: 'he' as PronounKey,
 		description: 'A magical adventure about finding your way home.',
-	},
-	'dragon-keeper': {
-		title: 'The Dragon Keeper',
-		originalName: 'Alex',
-		originalPronoun: 'she' as PronounKey,
-		description: 'A tale of friendship with the last dragon.',
 	},
 	// Add more stories as needed
 } as const;
