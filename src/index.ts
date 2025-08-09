@@ -63,9 +63,9 @@ const PRONOUNS = {
 
 type PronounKey = keyof typeof PRONOUNS;
 
-function rewritePronouns(text: string, originalName: string, targetName: string, pronounKey: PronounKey = 'they'): string {
+function rewritePronouns(text: string, originalName: string, targetName: string, pronounKey: PronounKey = 'he'): string {
 	const originalPronouns = PRONOUNS['he']; // assume original uses he/him
-	const newPronouns = PRONOUNS[pronounKey] || PRONOUNS['they'];
+	const newPronouns = PRONOUNS[pronounKey] || PRONOUNS['he'];
 
 	const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -202,6 +202,8 @@ const STORY_METADATA = {
 		originalName: 'Sam',
 		originalPronoun: 'he' as PronounKey,
 		description: 'A magical adventure about a struggling child.',
+		slug: 'island',
+		image: `https://junothreadborne.me/island-cover.webp`,
 	},
 	// Add more stories as needed
 } as const;
@@ -347,11 +349,15 @@ async function handleStoryCustomization(
     <meta property="og:title" content="${storyMeta.title}${customName ? ` - ${customName}'s Version` : ''}">
     <meta property="og:description" content="${storyMeta.description}">
     <meta property="og:type" content="article">
+    <meta property="og:image" content="${storyMeta.image}">
     ${STORY_CSS}
 </head>
 <body>
     ${banner}
     <div class="story-container">
+    <p class="text-xl md:text-2xl text-muted-foreground mb-6"><img src="${storyMeta.image}" alt="${
+			storyMeta.title
+		}" class="w-full mb-4 rounded-lg shadow-lg"></p>
         ${customizedHTML}
     </div>
 
